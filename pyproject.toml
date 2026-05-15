@@ -1,0 +1,14 @@
+[project]
+name = "simple-python-app"
+version = "0.1.0"
+description = "A small Python project with a calculator module and tests."
+authors = [
+    {name = "Your Name"}
+]
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = []
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
