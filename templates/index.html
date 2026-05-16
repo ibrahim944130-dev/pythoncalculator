@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Premium Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text: #f8fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at top right, #1e1b4b, #0f172a);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .container {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2.5rem;
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            z-index: -1;
+            border-radius: 2.1rem;
+            opacity: 0.3;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 600;
+        }
+
+        .display {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: right;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .history {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            min-height: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .current-value {
+            font-size: 2.5rem;
+            font-weight: 600;
+            word-break: break-all;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+        }
+
+        button {
+            aspect-ratio: 1;
+            border: none;
+            border-radius: 1rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.operator {
+            background: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
+        }
+
+        button.operator:hover {
+            background: rgba(99, 102, 241, 0.25);
+        }
+
+        button.equals {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            grid-column: span 2;
+            aspect-ratio: auto;
+            color: white;
+        }
+
+        button.clear {
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            grid-column: span 2;
+            aspect-ratio: auto;
+        }
+
+        /* Decorative blobs */
+        .blob {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            filter: blur(80px);
+            border-radius: 50%;
+            z-index: 0;
+            opacity: 0.15;
+            animation: move 20s infinite alternate;
+        }
+
+        .blob-1 { top: 10%; left: 10%; }
+        .blob-2 { bottom: 10%; right: 10%; animation-delay: -5s; }
+
+        @keyframes move {
+            from { transform: translate(0, 0) scale(1); }
+            to { transform: translate(50px, 50px) scale(1.1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <div class="container">
+        <h1>Python Calc</h1>
+        <div class="display">
+            <div class="history" id="history"></div>
+            <div class="current-value" id="display">0</div>
+        </div>
+        <div class="grid">
+            <button class="clear" onclick="clearDisplay()">CLEAR</button>
+            <button class="operator" onclick="backspace()">DEL</button>
+            <button class="operator" onclick="setOperator('divide')">÷</button>
+            
+            <button class="operator" onclick="unaryOp('sqrt')">√</button>
+            <button class="operator" onclick="setOperator('pow')">xʸ</button>
+            <button class="operator" onclick="unaryOp('sin')">sin</button>
+            <button class="operator" onclick="unaryOp('cos')">cos</button>
+            
+            <button onclick="appendNumber('7')">7</button>
+            <button onclick="appendNumber('8')">8</button>
+            <button onclick="appendNumber('9')">9</button>
+            <button class="operator" onclick="setOperator('multiply')">×</button>
+            
+            <button onclick="appendNumber('4')">4</button>
+            <button onclick="appendNumber('5')">5</button>
+            <button onclick="appendNumber('6')">6</button>
+            <button class="operator" onclick="setOperator('subtract')">−</button>
+            
+            <button onclick="appendNumber('1')">1</button>
+            <button onclick="appendNumber('2')">2</button>
+            <button onclick="appendNumber('3')">3</button>
+            <button class="operator" onclick="setOperator('add')">+</button>
+            
+            <button class="operator" onclick="unaryOp('log')">log</button>
+            <button onclick="appendNumber('0')">0</button>
+            <button onclick="appendNumber('.')">.</button>
+            <button class="operator" onclick="unaryOp('tan')">tan</button>
+            
+            <button class="equals" style="grid-column: span 4; aspect-ratio: auto;" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <script>
+        let currentInput = '0';
+        let previousInput = '';
+        let operator = null;
+        let shouldResetDisplay = false;
+
+        const displayElement = document.getElementById('display');
+        const historyElement = document.getElementById('history');
+
+        function updateDisplay() {
+            displayElement.innerText = currentInput;
+        }
+
+        function appendNumber(num) {
+            if (currentInput === '0' || shouldResetDisplay) {
+                currentInput = num;
+                shouldResetDisplay = false;
+            } else {
+                currentInput += num;
+            }
+            updateDisplay();
+        }
+
+        function backspace() {
+            if (shouldResetDisplay) return;
+            if (currentInput.length > 1) {
+                currentInput = currentInput.slice(0, -1);
+            } else {
+                currentInput = '0';
+            }
+            updateDisplay();
+        }
+
+        function setOperator(op) {
+            if (operator !== null) calculate();
+            previousInput = currentInput;
+            operator = op;
+            shouldResetDisplay = true;
+            
+            const opSymbols = { 'add': '+', 'subtract': '-', 'multiply': '×', 'divide': '÷', 'pow': '^' };
+            historyElement.innerText = `${previousInput} ${opSymbols[op]}`;
+        }
+
+        async function unaryOp(op) {
+            const a = parseFloat(currentInput);
+            try {
+                const response = await fetch('/calculate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ a, operation: op })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    historyElement.innerText = `${op}(${a}) =`;
+                    currentInput = data.result.toFixed(4).replace(/\.?0+$/, "");
+                    shouldResetDisplay = true;
+                    updateDisplay();
+                } else {
+                    alert(data.error);
+                }
+            } catch (error) {
+                alert('Connection error');
+            }
+        }
+
+        function clearDisplay() {
+            currentInput = '0';
+            previousInput = '';
+            operator = null;
+            historyElement.innerText = '';
+            updateDisplay();
+        }
+
+        async function calculate() {
+            if (operator === null || shouldResetDisplay) return;
+
+            const a = parseFloat(previousInput);
+            const b = parseFloat(currentInput);
+
+            try {
+                const response = await fetch('/calculate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ a, b, operation: operator })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    const opSymbols = { 'add': '+', 'subtract': '-', 'multiply': '×', 'divide': '÷', 'pow': '^' };
+                    historyElement.innerText = `${a} ${opSymbols[operator]} ${b} =`;
+                    currentInput = data.result.toString();
+                    operator = null;
+                    shouldResetDisplay = true;
+                    updateDisplay();
+                } else {
+                    alert(data.error);
+                }
+            } catch (error) {
+                alert('Connection error');
+            }
+        }
+    </script>
+</body>
+</html>
